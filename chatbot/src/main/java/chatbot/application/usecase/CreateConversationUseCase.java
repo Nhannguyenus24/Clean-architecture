@@ -1,16 +1,18 @@
 package chatbot.application.usecase;
 
-import chatbot.application.service.ConversationService;
 import chatbot.application.service.JwtEncodedService;
+import chatbot.domain.repository.ConversationRepository;
+import chatbot.domain.entity.Conversation;
 import org.springframework.stereotype.Service;
+import java.time.LocalDateTime;
 
 @Service
 public class CreateConversationUseCase {
 
-    private final ConversationService conversationService;
+    private final ConversationRepository conversationService;
     private final JwtEncodedService jwtEncodedService;
 
-    public CreateConversationUseCase(ConversationService conversationService, JwtEncodedService jwtEncodedService) {
+    public CreateConversationUseCase(ConversationRepository conversationService, JwtEncodedService jwtEncodedService) {
         this.conversationService = conversationService;
         this.jwtEncodedService = jwtEncodedService;
     }
@@ -18,8 +20,9 @@ public class CreateConversationUseCase {
     public CreateConversationResult execute(String token, String name) {
         try {
             Integer userId = jwtEncodedService.decode(token);
-            Integer conversationId = conversationService.createConversation(userId, name);
-            return new CreateConversationResult(true, "Conversation created successfully", conversationId);
+            Conversation conversation = new Conversation(null, name, userId, LocalDateTime.now());
+            conversationService.save(conversation);
+            return new CreateConversationResult(true, "Conversation created successfully", conversation.getId());
         } catch (Exception e) {
             return new CreateConversationResult(false, "Error: " + e.getMessage(), null);
         }

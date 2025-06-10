@@ -1,5 +1,6 @@
 package chatbot.application.usecase;
 
+import chatbot.application.service.JwtEncodedService;
 import chatbot.domain.entity.User;
 import chatbot.domain.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -10,38 +11,43 @@ import java.util.Optional;
 public class RegisterUseCase {
     
     private final UserRepository userRepository;
+    private final JwtEncodedService jwtEncodedService;
     
-    public RegisterUseCase(UserRepository userRepository) {
+    public RegisterUseCase(UserRepository userRepository, JwtEncodedService jwtEncodedService) {
         this.userRepository = userRepository;
+        this.jwtEncodedService = jwtEncodedService;
     }
     
     public RegisterResult execute(String name, String email, String password) {
         // Check if user already exists
         Optional<User> existingUser = userRepository.findByEmail(email);
         if (existingUser.isPresent()) {
-            return new RegisterResult(false, "Email already in use");
+            return new RegisterResult(false, "Email already in use", null);
         }
         
-        // Generate ID (simple approach - in real app should use proper ID generation)
-        int userId = (int) (System.currentTimeMillis() % Integer.MAX_VALUE);
-        
         // Create and save new user
-        User newUser = new User(userId, name, email, password);
+        User newUser = new User(null, name, email, password);
         userRepository.save(newUser);
         
-        return new RegisterResult(true, "User registered successfully");
+        // Encode user ID as token
+        String token = jwtEncodedService.encode(newUser.getId());
+        
+        return new RegisterResult(true, "User registered successfully", token);
     }
     
     public static class RegisterResult {
         private final boolean success;
         private final String message;
+        private final String token;
         
-        public RegisterResult(boolean success, String message) {
+        public RegisterResult(boolean success, String message, String token) {
             this.success = success;
             this.message = message;
+            this.token = token;
         }
         
         public boolean isSuccess() { return success; }
         public String getMessage() { return message; }
+        public String getToken() { return token; }
     }
 } 

@@ -1,26 +1,25 @@
 package chatbot.application.usecase;
 
-import chatbot.application.service.ConversationService;
 import chatbot.application.service.JwtEncodedService;
-import chatbot.domain.entity.Conversation;
 import chatbot.domain.entity.Message;
-import chatbot.domain.port.AiChatService;
+import chatbot.application.service.AIChatService;
+import chatbot.domain.repository.ConversationRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.List;
 
 @Service
 public class SendMessageUseCase {
     
-    private final ConversationService conversationService;
+    private final ConversationRepository conversationRepository;
     private final JwtEncodedService jwtEncodedService;
-    private final AiChatService aiChatService;
+    private final AIChatService aiChatService;
     
-    public SendMessageUseCase(ConversationService conversationService, 
+    public SendMessageUseCase(ConversationRepository conversationRepository,
                              JwtEncodedService jwtEncodedService,
-                             AiChatService aiChatService) {
-        this.conversationService = conversationService;
+                              AIChatService aiChatService) {
+        this.conversationRepository = conversationRepository;
         this.jwtEncodedService = jwtEncodedService;
         this.aiChatService = aiChatService;
     }
@@ -30,11 +29,7 @@ public class SendMessageUseCase {
             Integer userId = jwtEncodedService.decode(token);
             
             // Validate user owns conversation
-            Optional<Conversation> conversationOpt = conversationService
-                    .getUserConversations(userId)
-                    .stream()
-                    .filter(conv -> conv.getId().equals(conversationId))
-                    .findFirst();
+            List<Message> conversationOpt = conversationRepository.getMessages(conversationId);
             
             if (conversationOpt.isEmpty()) {
                 return new SendMessageResult(false, "Conversation not found or access denied", null);
@@ -44,11 +39,11 @@ public class SendMessageUseCase {
             String reply = aiChatService.generateResponse(prompt);
             
             // Save user message
-            conversationService.addMessage(conversationId,
+            conversationRepository.addMessage(conversationId,
                     new Message(null, prompt, LocalDateTime.now(), true));
             
             // Save AI response
-            conversationService.addMessage(conversationId,
+            conversationRepository.addMessage(conversationId,
                     new Message(null, reply, LocalDateTime.now(), false));
             
             return new SendMessageResult(true, "Message sent successfully", reply);

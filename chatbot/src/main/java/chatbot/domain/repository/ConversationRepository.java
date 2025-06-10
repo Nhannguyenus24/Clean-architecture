@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.List;
 
 public interface ConversationRepository {
-    Optional<Conversation> findById(Integer id);
+    Conversation findById(Integer id);
     List<Conversation> findByUserId(Integer userId);
     void save(Conversation conversation);
 

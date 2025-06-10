@@ -1,6 +1,6 @@
 package chatbot.infrastructure.external;
 
-import chatbot.domain.port.AiChatService;
+import chatbot.application.service.AIChatService;
 import com.google.genai.Client;
 import com.google.genai.types.GenerateContentResponse;
 import org.springframework.beans.factory.annotation.Value; // Make sure this import is present
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @ConditionalOnProperty(name = "ai.service.mock", havingValue = "false", matchIfMissing = true)
-public class GeminiAiChatService implements AiChatService {
+public class GeminiAiChatService implements AIChatService {
 
     private final Client geminiClient;
 

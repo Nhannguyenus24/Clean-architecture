@@ -8,11 +8,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 
 @Repository
 public class JdbcConversationRepository implements ConversationRepository {
@@ -40,14 +44,14 @@ public class JdbcConversationRepository implements ConversationRepository {
     );
 
     @Override
-    public Optional<Conversation> findById(Integer id) {
+    public Conversation findById(Integer id) {
         String sql = "SELECT * FROM conversations WHERE id = ?";
         try {
             List<Conversation> result = jdbcTemplate.query(sql, conversationRowMapper, id);
-            return result.stream().findFirst();
+            return result.stream().findFirst().orElse(null);
         } catch (DataAccessException e) {
             logger.error("Error finding conversation by ID {}: {}", id, e.getMessage());
-            return Optional.empty();
+            return null;
         }
     }
 
@@ -64,10 +68,22 @@ public class JdbcConversationRepository implements ConversationRepository {
 
     @Override
     public void save(Conversation conversation) {
-        String sql = "INSERT INTO conversations (id, name, user_id, created_at) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO conversations (name, user_id, created_at) VALUES (?, ?, ?)";
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        
         try {
-            jdbcTemplate.update(sql, conversation.getId(), conversation.getName(), conversation.getUserId(),
-                    Timestamp.valueOf(conversation.getDateTime()));
+            jdbcTemplate.update(connection -> {
+                PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+                ps.setString(1, conversation.getName());
+                ps.setInt(2, conversation.getUserId());
+                ps.setTimestamp(3, Timestamp.valueOf(conversation.getDateTime()));
+                return ps;
+            }, keyHolder);
+            
+            // Return generated ID
+            if (keyHolder.getKey() != null) {
+                conversation.setId(keyHolder.getKey().intValue());
+            }
         } catch (DataAccessException e) {
             logger.error("Error saving conversation {}: {}", conversation, e.getMessage());
         }
@@ -86,12 +102,13 @@ public class JdbcConversationRepository implements ConversationRepository {
 
     @Override
     public void addMessage(Integer conversationId, Message message) {
-        String sql = "INSERT INTO messages (id, content, timestamp, is_user, conversation_id) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO messages ( content, timestamp, is_user, conversation_id) VALUES (?, ?, ?, ?)";
         try {
-            jdbcTemplate.update(sql, message.getId(), message.getContent(),
+            jdbcTemplate.update(sql, message.getContent(),
                     Timestamp.valueOf(message.getTimestamp()), message.getIsUser(), conversationId);
         } catch (DataAccessException e) {
             logger.error("Error adding message to conversation ID {}: {}", conversationId, e.getMessage());
         }
     }
+
 }

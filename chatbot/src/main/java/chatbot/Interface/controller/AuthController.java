@@ -36,7 +36,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ResponseDto<String>> register(@RequestBody RegisterRequestDto request) {
+    public ResponseEntity<ResponseDto<Map<String, String>>> register(@RequestBody RegisterRequestDto request) {
         RegisterUseCase.RegisterResult result = registerUseCase.execute(
                 request.getName(), 
                 request.getEmail(), 
@@ -49,6 +49,6 @@ public class AuthController {
                     .body(new ResponseDto<>(result.getMessage(), null, 400));
         }
         
-        return ResponseEntity.ok(new ResponseDto<>(result.getMessage(), null, 200));
+        return ResponseEntity.ok(new ResponseDto<>(result.getMessage(), Map.of("token", result.getToken()), 200));
     }
 }

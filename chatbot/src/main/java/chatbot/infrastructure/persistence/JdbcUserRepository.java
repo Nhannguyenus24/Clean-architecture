@@ -7,8 +7,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,10 +35,10 @@ public class JdbcUserRepository implements UserRepository {
     );
 
     @Override
-    public Optional<User> findById(String id) {
+    public Optional<User> findById(Integer id) {
         String sql = "SELECT * FROM users WHERE id = ?";
         try {
-            List<User> users = jdbcTemplate.query(sql, userRowMapper, Integer.valueOf(id));
+            List<User> users = jdbcTemplate.query(sql, userRowMapper, id);
             return users.stream().findFirst();
         } catch (DataAccessException e) {
             logger.error("Error finding user by ID {}: {}", id, e.getMessage());
@@ -66,20 +70,39 @@ public class JdbcUserRepository implements UserRepository {
     }
 
     @Override
-    public void save(User user) {
-        String sql = "INSERT INTO users (id, name, email, password) VALUES (?, ?, ?, ?)";
+    public Integer save(User user) {
+        String sql = "INSERT INTO users (name, email, password) VALUES (?, ?, ?)";
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
         try {
-            jdbcTemplate.update(sql, user.getId(), user.getName(), user.getEmail(), user.getPassword());
+            jdbcTemplate.update(connection -> {
+                PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+                ps.setString(1, user.getName());
+                ps.setString(2, user.getEmail());
+                ps.setString(3, user.getPassword());
+                return ps;
+            }, keyHolder);
+
+            if (keyHolder.getKey() != null) {
+                int generatedId = keyHolder.getKey().intValue();
+                user.setId(generatedId);
+                logger.info("Saved user with id {}: {}", generatedId, user);
+                return generatedId;
+            }
         } catch (DataAccessException e) {
             logger.error("Error saving user {}: {}", user, e.getMessage());
         }
+
+        return null;
     }
 
+
     @Override
-    public void deleteById(String id) {
+    public void deleteById(Integer id) {
         String sql = "DELETE FROM users WHERE id = ?";
         try {
             jdbcTemplate.update(sql, Integer.valueOf(id));
+            logger.info(id.toString());
         } catch (DataAccessException e) {
             logger.error("Error deleting user by ID {}: {}", id, e.getMessage());
         }
