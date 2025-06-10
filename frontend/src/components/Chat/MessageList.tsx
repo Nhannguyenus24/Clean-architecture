@@ -210,9 +210,6 @@ const MessageList: React.FC<MessageListProps> = ({ messages, loading }) => {
                   }}
                 >
                   <TypingIndicator />
-                  <Typography variant="body2" sx={{ color: '#8e9297', fontSize: '14px' }}>
-                    AI is thinking...
-                  </Typography>
                 </Paper>
               </Box>
             </Box>
