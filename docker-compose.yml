@@ -1,5 +1,7 @@
 version: '3.8'
+
 services:
+  # PostgreSQL Database
   postgres:
     image: postgres:15
     container_name: chatbot_postgres
@@ -11,5 +13,52 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - chatbot-network
+
+  redis:
+    image: redis:7
+    container_name: chatbot_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - chatbot-network
+
+  # Chatbot Backend Service
+  chatbot-backend:
+    build:
+      context: ./chatbot
+      dockerfile: Dockerfile
+    container_name: chatbot_backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/chatbot
+      - SPRING_DATASOURCE_USERNAME=chatbot_user
+      - SPRING_DATASOURCE_PASSWORD=chatbot_pass
+      - GOOGLE_API_KEY=AIzaSyBNBn9am6AfJ5xyyZWrB9T4I5-kTQoNR7Y
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - chatbot-network
+
+  # Frontend Service
+  chatbot-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: chatbot_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - chatbot-backend
+    networks:
+      - chatbot-network
+
 volumes:
   postgres_data:
+
+networks:
+  chatbot-network:
+    driver: bridge

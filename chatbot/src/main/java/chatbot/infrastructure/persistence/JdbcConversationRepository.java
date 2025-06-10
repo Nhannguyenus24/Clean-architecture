@@ -14,6 +14,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -79,11 +80,12 @@ public class JdbcConversationRepository implements ConversationRepository {
                 ps.setTimestamp(3, Timestamp.valueOf(conversation.getDateTime()));
                 return ps;
             }, keyHolder);
-            
-            // Return generated ID
-            if (keyHolder.getKey() != null) {
-                conversation.setId(keyHolder.getKey().intValue());
+
+            Map<String, Object> keys = keyHolder.getKeys();
+            if (keys != null && keys.get("id") != null) {
+                conversation.setId(((Number) keys.get("id")).intValue());
             }
+
         } catch (DataAccessException e) {
             logger.error("Error saving conversation {}: {}", conversation, e.getMessage());
         }
@@ -91,6 +93,10 @@ public class JdbcConversationRepository implements ConversationRepository {
 
     @Override
     public List<Message> getMessages(Integer conversationId) {
+        if (findById(conversationId) == null) {
+            logger.warn("Conversation ID {} not found.", conversationId);
+            return null;
+        }
         String sql = "SELECT * FROM messages WHERE conversation_id = ? ORDER BY timestamp ASC";
         try {
             return jdbcTemplate.query(sql, messageRowMapper, conversationId);
@@ -111,4 +117,13 @@ public class JdbcConversationRepository implements ConversationRepository {
         }
     }
 
+    @Override
+    public void renameConversation(Integer conversationId, String newName) {
+        String sql = "UPDATE conversations SET name = ? WHERE id = ?";
+        try {
+            jdbcTemplate.update(sql, newName, conversationId);
+        } catch (DataAccessException e) {
+            logger.error("Error renaming conversation ID {}: {}", conversationId, e.getMessage());
+        }
+    }
 }

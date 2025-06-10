@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 public class MockAiChatService implements AIChatService {
 
     @Override
-    public String generateResponse(String prompt) {
+    public String generateResponse(String prompt, Integer conversationId) {
         // Return a mock response for testing
         return "Mock AI Response: I received your message '" + prompt + "'. This is a simulated response for testing purposes.";
     }

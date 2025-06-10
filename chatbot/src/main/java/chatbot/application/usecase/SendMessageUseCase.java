@@ -31,12 +31,12 @@ public class SendMessageUseCase {
             // Validate user owns conversation
             List<Message> conversationOpt = conversationRepository.getMessages(conversationId);
             
-            if (conversationOpt.isEmpty()) {
+            if (conversationOpt == null) {
                 return new SendMessageResult(false, "Conversation not found or access denied", null);
             }
             
             // Generate AI response
-            String reply = aiChatService.generateResponse(prompt);
+            String reply = aiChatService.generateResponse(prompt, conversationId);
             
             // Save user message
             conversationRepository.addMessage(conversationId,

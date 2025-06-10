@@ -1,0 +1,11 @@
+target/
+!target/*.jar
+*.log
+.git
+.gitignore
+README.md
+.env
+.DS_Store
+.idea/
+*.iml
+.vscode/ 

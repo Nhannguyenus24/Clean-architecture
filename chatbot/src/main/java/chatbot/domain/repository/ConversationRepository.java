@@ -12,5 +12,7 @@ public interface ConversationRepository {
 
     List<Message> getMessages(Integer conversationId);
     void addMessage(Integer conversationId, Message message);
+
+    void renameConversation(Integer conversationId, String newName);
 }
 
