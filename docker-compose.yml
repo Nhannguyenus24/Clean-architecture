@@ -36,7 +36,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/chatbot
       - SPRING_DATASOURCE_USERNAME=chatbot_user
       - SPRING_DATASOURCE_PASSWORD=chatbot_pass
-      - GOOGLE_API_KEY=AIzaSyBNBn9am6AfJ5xyyZWrB9T4I5-kTQoNR7Y
+      - GOOGLE_API_KEY=
     depends_on:
       - redis
       - postgres
