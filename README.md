@@ -26,6 +26,44 @@ Key features:
 
 ### Option 1: Using Docker Compose (Recommended)
 
+#### Step 1: Configure Google Gemini API Key
+
+Before running the application, you need to obtain a Google Gemini API key:
+
+1. **Visit Google AI Studio**: Go to [https://aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey)
+2. **Sign in**: Use your Google account to sign in
+3. **Create API Key**: Click "Create API Key" button
+4. **Copy the Key**: Copy the generated API key (it starts with "AIza...")
+
+#### Step 2: Set Environment Variable
+
+**Option A: Using Environment Variable (Recommended)**
+```bash
+# On Windows (PowerShell)
+$env:GOOGLE_API_KEY="your-api-key-here"
+docker-compose up --build
+
+# On Windows (Command Prompt)
+set GOOGLE_API_KEY=your-api-key-here
+docker-compose up --build
+
+# On Linux/Mac
+export GOOGLE_API_KEY="your-api-key-here"
+docker-compose up --build
+```
+
+**Option B: Edit docker-compose.yml directly**
+Open `docker-compose.yml` and replace the empty `GOOGLE_API_KEY=` with your key:
+```yaml
+environment:
+  - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/chatbot
+  - SPRING_DATASOURCE_USERNAME=chatbot_user
+  - SPRING_DATASOURCE_PASSWORD=chatbot_pass
+  - GOOGLE_API_KEY=your-api-key-here
+```
+
+#### Step 3: Run the Application
+
 In the root directory (where `docker-compose.yml` is located), run:
 
 ```bash
@@ -42,8 +80,25 @@ This will:
 
 ### Option 2: Running Locally
 
-First, ensure PostgreSQL is running, then:
+#### Prerequisites:
+1. **PostgreSQL**: Ensure PostgreSQL is running locally
+2. **Google API Key**: Follow Step 1 from Option 1 above to get your Google Gemini API key
 
+#### Configure API Key:
+Set the environment variable before running:
+
+```bash
+# On Windows (PowerShell)
+$env:GOOGLE_API_KEY="your-api-key-here"
+
+# On Windows (Command Prompt)  
+set GOOGLE_API_KEY=your-api-key-here
+
+# On Linux/Mac
+export GOOGLE_API_KEY="your-api-key-here"
+```
+
+#### Run the Application:
 ```bash
 cd chatbot
 ./mvnw spring-boot:run
@@ -72,6 +127,36 @@ Once the application is running:
 - `GET /api/chat/history` - Get user's conversation history
 - `GET /api/chat/getConversation/{conversationId}` - Get messages from a specific conversation
 - `POST /api/chat/getResponse/{conversationId}` - Send message and get AI response
+
+---
+
+## Sample Test Accounts
+
+For testing purposes, the application comes pre-configured with sample user accounts. You can use these credentials to quickly test the chat functionality without going through the registration process:
+
+| Email | Password | User Name |
+|-------|----------|-----------|
+| `alice@example.com` | `alice123` | Alice |
+| `bob@example.com` | `bob123` | Bob |
+| `charlie@example.com` | `charlie123` | Charlie |
+
+### Database Setup
+These accounts are automatically inserted into the database when the application starts. The SQL insert statement used:
+
+```sql
+INSERT INTO users (id, name, email, password) VALUES
+    (1, 'Alice', 'alice@example.com', 'alice123'),
+    (2, 'Bob', 'bob@example.com', 'bob123'),
+    (3, 'Charlie', 'charlie@example.com', 'charlie123');
+```
+
+### How to Use
+1. Navigate to [http://localhost](http://localhost)
+2. Click on "Login" 
+3. Use any of the email/password combinations above
+4. Start chatting with the AI immediately!
+
+**Note**: These are test accounts for development and demo purposes only. In production, ensure proper password hashing and security measures are implemented.
 
 ---
 
