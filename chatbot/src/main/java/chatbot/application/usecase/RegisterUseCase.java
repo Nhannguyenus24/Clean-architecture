@@ -27,10 +27,10 @@ public class RegisterUseCase {
         
         // Create and save new user
         User newUser = new User(null, name, email, password);
-        userRepository.save(newUser);
+        int id = userRepository.save(newUser);
         
         // Encode user ID as token
-        String token = jwtEncodedService.encode(newUser.getId());
+        String token = jwtEncodedService.encode(id);
         
         return new RegisterResult(true, "User registered successfully", token);
     }
