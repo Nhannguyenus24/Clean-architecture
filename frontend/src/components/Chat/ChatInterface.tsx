@@ -2,11 +2,21 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Box,
   Typography,
-  Alert
+  Alert,
+  useMediaQuery,
+  useTheme,
+  IconButton,
+  AppBar,
+  Toolbar
 } from '@mui/material';
+import {
+  Menu as MenuIcon,
+  ArrowBack as ArrowBackIcon
+} from '@mui/icons-material';
 import Sidebar from './Sidebar';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
+import ThemeToggle from '../ThemeToggle';
 import { Conversation, Message } from '../../types';
 import { chatService } from '../../services/api';
 
@@ -18,7 +28,11 @@ const ChatInterface: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [mobileOpen, setMobileOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -66,6 +80,11 @@ const ChatInterface: React.FC = () => {
     setMessages([]);
     setError(''); // Clear any previous errors
     await loadMessages(conversationId);
+    
+    // Close mobile drawer when conversation is selected
+    if (isMobile) {
+      setMobileOpen(false);
+    }
   };
 
   const handleNewChat = async () => {
@@ -140,6 +159,9 @@ const ChatInterface: React.FC = () => {
         currentConversationId={currentConversationId}
         onConversationSelect={handleConversationSelect}
         onNewChat={handleNewChat}
+        mobileOpen={mobileOpen}
+        onMobileClose={() => setMobileOpen(false)}
+        isMobile={isMobile}
       />
 
       {/* Main Chat Area */}
@@ -150,45 +172,88 @@ const ChatInterface: React.FC = () => {
           flexDirection: 'column',
           height: '100vh',
           backgroundColor: '#ffffff',
+          width: isMobile ? '100%' : `calc(100% - ${SIDEBAR_WIDTH}px)`,
         }}
       >
-        {/* Header */}
-        <Box
-          sx={{
-            p: 3,
-            pb: 2,
-            borderBottom: '1px solid #e4e6ea',
-            backgroundColor: '#ffffff',
-            zIndex: 1,
-            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)'
-          }}
-        >
-          <Typography 
-            variant="h6" 
+        {/* Mobile Header */}
+        {isMobile && (
+          <AppBar 
+            position="static" 
+            elevation={0}
             sx={{ 
-              fontWeight: 600,
+              backgroundColor: '#ffffff',
               color: '#1c1e21',
-              fontSize: '18px'
+              borderBottom: '1px solid #e4e6ea'
             }}
           >
-            {currentConversationId 
-              ? conversations.find(c => c.id === currentConversationId)?.name || 'Chat'
-              : 'AI Chat Assistant'
-            }
-          </Typography>
-          {currentConversationId && (
+            <Toolbar sx={{ minHeight: '56px !important', px: 2 }}>
+              <IconButton
+                color="inherit"
+                aria-label="open drawer"
+                edge="start"
+                onClick={() => setMobileOpen(true)}
+                sx={{ mr: 2 }}
+              >
+                <MenuIcon />
+              </IconButton>
+              <Typography 
+                variant="h6" 
+                noWrap
+                sx={{ 
+                  flexGrow: 1,
+                  fontWeight: 600,
+                  fontSize: '16px'
+                }}
+              >
+                {currentConversationId 
+                  ? conversations.find(c => c.id === currentConversationId)?.name || 'Chat'
+                  : 'AI Chat Assistant'
+                }
+              </Typography>
+              <ThemeToggle size="medium" />
+            </Toolbar>
+          </AppBar>
+        )}
+
+        {/* Desktop Header */}
+        {!isMobile && (
+          <Box
+            sx={{
+              p: 3,
+              pb: 2,
+              borderBottom: '1px solid #e4e6ea',
+              backgroundColor: '#ffffff',
+              zIndex: 1,
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)'
+            }}
+          >
             <Typography 
-              variant="body2" 
+              variant="h6" 
               sx={{ 
-                color: '#8e9297',
-                fontSize: '13px',
-                mt: 0.5
+                fontWeight: 600,
+                color: '#1c1e21',
+                fontSize: '18px'
               }}
             >
-              Online • Ready to help
+              {currentConversationId 
+                ? conversations.find(c => c.id === currentConversationId)?.name || 'Chat'
+                : 'AI Chat Assistant'
+              }
             </Typography>
-          )}
-        </Box>
+            {currentConversationId && (
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  color: '#8e9297',
+                  fontSize: '13px',
+                  mt: 0.5
+                }}
+              >
+                Online • Ready to help
+              </Typography>
+            )}
+          </Box>
+        )}
 
         {/* Error Alert */}
         {error && (

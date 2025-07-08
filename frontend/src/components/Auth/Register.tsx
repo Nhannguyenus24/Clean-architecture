@@ -7,7 +7,9 @@ import {
   Typography,
   Box,
   Alert,
-  Link
+  Link,
+  useMediaQuery,
+  useTheme
 } from '@mui/material';
 import { authService } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -26,6 +28,8 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,30 +61,33 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
     <Container component="main" maxWidth="sm">
       <Box
         sx={{
-          marginTop: 8,
+          marginTop: isMobile ? 4 : 8,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
+          minHeight: isMobile ? '100vh' : 'auto',
+          px: isMobile ? 2 : 0
         }}
       >
         <Paper 
           elevation={0} 
           sx={{ 
-            padding: 5, 
+            padding: isMobile ? 3 : 5, 
             width: '100%',
-            borderRadius: '20px',
+            borderRadius: isMobile ? '16px' : '20px',
             border: '1px solid #e4e6ea',
-            backgroundColor: '#ffffff'
+            backgroundColor: '#ffffff',
+            mt: isMobile ? 2 : 0
           }}
         >
-          <Box sx={{ textAlign: 'center', mb: 4 }}>
-            <Typography variant="h3" sx={{ mb: 1, color: '#0084ff' }}>
+          <Box sx={{ textAlign: 'center', mb: isMobile ? 3 : 4 }}>
+            <Typography variant="h3" sx={{ mb: 1, color: '#0084ff', fontSize: isMobile ? '3rem' : '3rem' }}>
               💬
             </Typography>
-            <Typography component="h1" variant="h4" sx={{ fontWeight: 600, color: '#1c1e21' }}>
+            <Typography component="h1" variant="h4" sx={{ fontWeight: 600, color: '#1c1e21', fontSize: isMobile ? '1.8rem' : '2.125rem' }}>
               Create Account
             </Typography>
-            <Typography variant="body2" sx={{ color: '#8e9297', mt: 1 }}>
+            <Typography variant="body2" sx={{ color: '#8e9297', mt: 1, fontSize: isMobile ? '0.95rem' : '0.875rem' }}>
               Join us and start chatting with AI
             </Typography>
           </Box>
@@ -116,12 +123,16 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
                 '& .MuiOutlinedInput-root': {
                   borderRadius: '12px',
                   backgroundColor: '#f8f9fa',
+                  fontSize: isMobile ? '16px' : '14px',
                   '&:hover fieldset': {
                     borderColor: '#0084ff'
                   },
                   '&.Mui-focused fieldset': {
                     borderColor: '#0084ff'
                   }
+                },
+                '& .MuiInputLabel-root': {
+                  fontSize: isMobile ? '16px' : '14px'
                 }
               }}
             />
@@ -140,12 +151,16 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
                 '& .MuiOutlinedInput-root': {
                   borderRadius: '12px',
                   backgroundColor: '#f8f9fa',
+                  fontSize: isMobile ? '16px' : '14px',
                   '&:hover fieldset': {
                     borderColor: '#0084ff'
                   },
                   '&.Mui-focused fieldset': {
                     borderColor: '#0084ff'
                   }
+                },
+                '& .MuiInputLabel-root': {
+                  fontSize: isMobile ? '16px' : '14px'
                 }
               }}
             />
@@ -165,12 +180,16 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
                 '& .MuiOutlinedInput-root': {
                   borderRadius: '12px',
                   backgroundColor: '#f8f9fa',
+                  fontSize: isMobile ? '16px' : '14px',
                   '&:hover fieldset': {
                     borderColor: '#0084ff'
                   },
                   '&.Mui-focused fieldset': {
                     borderColor: '#0084ff'
                   }
+                },
+                '& .MuiInputLabel-root': {
+                  fontSize: isMobile ? '16px' : '14px'
                 }
               }}
             />
@@ -189,12 +208,16 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
                 '& .MuiOutlinedInput-root': {
                   borderRadius: '12px',
                   backgroundColor: '#f8f9fa',
+                  fontSize: isMobile ? '16px' : '14px',
                   '&:hover fieldset': {
                     borderColor: '#0084ff'
                   },
                   '&.Mui-focused fieldset': {
                     borderColor: '#0084ff'
                   }
+                },
+                '& .MuiInputLabel-root': {
+                  fontSize: isMobile ? '16px' : '14px'
                 }
               }}
             />
@@ -206,10 +229,10 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
               sx={{ 
                 mt: 2, 
                 mb: 3,
-                py: 1.5,
+                py: isMobile ? 2 : 1.5,
                 borderRadius: '12px',
                 backgroundColor: '#0084ff',
-                fontSize: '16px',
+                fontSize: isMobile ? '18px' : '16px',
                 fontWeight: 600,
                 textTransform: 'none',
                 '&:hover': {
@@ -234,6 +257,7 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
                   color: '#0084ff',
                   textDecoration: 'none',
                   fontWeight: 500,
+                  fontSize: isMobile ? '16px' : '14px',
                   '&:hover': {
                     textDecoration: 'underline'
                   }

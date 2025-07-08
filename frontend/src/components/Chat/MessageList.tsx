@@ -3,7 +3,9 @@ import {
   Box,
   Typography,
   Paper,
-  Avatar
+  Avatar,
+  useMediaQuery,
+  useTheme
 } from '@mui/material';
 import {
   Person as PersonIcon,
@@ -20,6 +22,9 @@ interface MessageListProps {
 }
 
 const MessageList: React.FC<MessageListProps> = ({ messages, loading }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  
   const formatTime = (timestamp: string) => {
     const date = new Date(timestamp);
     return date.toLocaleTimeString('en-US', { 
@@ -33,10 +38,10 @@ const MessageList: React.FC<MessageListProps> = ({ messages, loading }) => {
       sx={{
         flex: 1,
         overflow: 'auto',
-        p: 3,
+        p: isMobile ? 2 : 3,
         display: 'flex',
         flexDirection: 'column',
-        gap: 2,
+        gap: isMobile ? 1.5 : 2,
         backgroundColor: '#f8f9fa'
       }}
     >
@@ -56,19 +61,19 @@ const MessageList: React.FC<MessageListProps> = ({ messages, loading }) => {
                   display: 'flex',
                   alignItems: 'flex-end',
                   gap: 1,
-                  maxWidth: '75%',
+                  maxWidth: isMobile ? '90%' : '75%',
                   flexDirection: message.isUser ? 'row-reverse' : 'row'
                 }}
               >
                 <Avatar
                   sx={{
                     bgcolor: message.isUser ? '#0084ff' : '#42a5f5',
-                    width: 32,
-                    height: 32,
+                    width: isMobile ? 36 : 32,
+                    height: isMobile ? 36 : 32,
                     mb: 0.5
                   }}
                 >
-                  {message.isUser ? <PersonIcon sx={{ fontSize: 18 }} /> : <BotIcon sx={{ fontSize: 18 }} />}
+                  {message.isUser ? <PersonIcon sx={{ fontSize: isMobile ? 20 : 18 }} /> : <BotIcon sx={{ fontSize: isMobile ? 20 : 18 }} />}
                 </Avatar>
                 
                 <Box
@@ -81,7 +86,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, loading }) => {
                   <Paper
                     elevation={0}
                     sx={{
-                      p: 2,
+                      p: isMobile ? 2.5 : 2,
                       backgroundColor: message.isUser ? '#0084ff' : '#ffffff',
                       color: message.isUser ? 'white' : '#1c1e21',
                       borderRadius: message.isUser ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
@@ -98,7 +103,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, loading }) => {
                         sx={{
                           whiteSpace: 'pre-wrap',
                           lineHeight: 1.4,
-                          fontSize: '15px'
+                          fontSize: isMobile ? '16px' : '15px'
                         }}
                       >
                         {message.content}
@@ -109,7 +114,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, loading }) => {
                           '& p': {
                             margin: '0 0 8px 0',
                             lineHeight: 1.4,
-                            fontSize: '15px',
+                            fontSize: isMobile ? '16px' : '15px',
                             '&:last-child': { mb: 0 }
                           },
                           '& code': {
@@ -117,15 +122,15 @@ const MessageList: React.FC<MessageListProps> = ({ messages, loading }) => {
                             color: '#e91e63',
                             padding: '2px 6px',
                             borderRadius: '4px',
-                            fontSize: '13px',
+                            fontSize: isMobile ? '14px' : '13px',
                             fontFamily: 'Monaco, Consolas, "Courier New", monospace'
                           },
                           '& pre': {
                             backgroundColor: '#2d3748',
                             color: '#e2e8f0',
-                            padding: '12px',
+                            padding: isMobile ? '16px' : '12px',
                             borderRadius: '8px',
-                            fontSize: '13px',
+                            fontSize: isMobile ? '14px' : '13px',
                             fontFamily: 'Monaco, Consolas, "Courier New", monospace',
                             overflow: 'auto',
                             margin: '8px 0'
@@ -158,7 +163,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, loading }) => {
                       color: '#8e9297',
                       mt: 0.5,
                       mx: 1,
-                      fontSize: '12px'
+                      fontSize: isMobile ? '13px' : '12px'
                     }}
                   >
                     {formatTime(message.timestamp)}

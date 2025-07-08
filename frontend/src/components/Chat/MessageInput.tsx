@@ -3,7 +3,9 @@ import {
   Box,
   TextField,
   IconButton,
-  Paper
+  Paper,
+  useMediaQuery,
+  useTheme
 } from '@mui/material';
 import {
   Send as SendIcon
@@ -22,6 +24,8 @@ const MessageInput: React.FC<MessageInputProps> = ({
 }) => {
   const [message, setMessage] = useState('');
   const textFieldRef = useRef<HTMLTextAreaElement>(null);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,10 +52,12 @@ const MessageInput: React.FC<MessageInputProps> = ({
   return (
     <Box
       sx={{
-        p: 3,
+        p: isMobile ? 2 : 3,
         pt: 2,
         borderTop: '1px solid #e4e6ea',
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        // Add safe area for mobile keyboards
+        pb: isMobile ? 'max(16px, env(safe-area-inset-bottom))' : 3
       }}
     >
       <Paper
@@ -59,9 +65,9 @@ const MessageInput: React.FC<MessageInputProps> = ({
         sx={{
           display: 'flex',
           alignItems: 'flex-end',
-          gap: 1.5,
-          p: 1.5,
-          borderRadius: '24px',
+          gap: isMobile ? 1 : 1.5,
+          p: isMobile ? 1.5 : 1.5,
+          borderRadius: isMobile ? '20px' : '24px',
           border: '1px solid #e4e6ea',
           backgroundColor: '#f8f9fa',
           transition: 'all 0.2s ease',
@@ -75,7 +81,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
         <TextField
           inputRef={textFieldRef}
           multiline
-          maxRows={5}
+          maxRows={isMobile ? 4 : 5}
           fullWidth
           value={message}
           onChange={(e) => setMessage(e.target.value)}
@@ -86,9 +92,9 @@ const MessageInput: React.FC<MessageInputProps> = ({
           InputProps={{
             disableUnderline: true,
             sx: {
-              fontSize: '15px',
+              fontSize: isMobile ? '16px' : '15px',
               lineHeight: 1.4,
-              padding: '8px 12px',
+              padding: isMobile ? '12px 16px' : '8px 12px',
               '&.Mui-disabled': {
                 color: '#8e9297'
               }
@@ -96,7 +102,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
           }}
           sx={{
             '& .MuiInputBase-root': {
-              fontSize: '15px'
+              fontSize: isMobile ? '16px' : '15px'
             },
             '& .MuiInputBase-input': {
               resize: 'none',
@@ -125,8 +131,8 @@ const MessageInput: React.FC<MessageInputProps> = ({
           sx={{
             bgcolor: message.trim() && !disabled ? '#0084ff' : '#e4e6ea',
             color: message.trim() && !disabled ? 'white' : '#8e9297',
-            width: 36,
-            height: 36,
+            width: isMobile ? 44 : 36,
+            height: isMobile ? 44 : 36,
             mb: 0.5,
             transition: 'all 0.2s ease',
             '&:hover': {
@@ -139,7 +145,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
             }
           }}
         >
-          <SendIcon sx={{ fontSize: 18 }} />
+          <SendIcon sx={{ fontSize: isMobile ? 20 : 18 }} />
         </IconButton>
       </Paper>
       
