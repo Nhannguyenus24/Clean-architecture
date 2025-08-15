@@ -60,7 +60,7 @@ public class    ChatController {
         return ResponseEntity.ok(new ResponseDto<>("Success", result.getConversationId(), 200));
     }
     @GetMapping("/getConversation/{conversationId}")
-    public ResponseEntity<ResponseDto<List<Message>>> chat(
+    public ResponseEntity<ResponseDto<List<Message>>> getConversation(
             @PathVariable Integer conversationId,
             @RequestHeader("Authorization") String authorizationHeader) {
 
@@ -78,7 +78,7 @@ public class    ChatController {
 
 
     @PostMapping("/getResponse/{conversationId}")
-    public ResponseEntity<ResponseDto<String>> chat(
+    public ResponseEntity<ResponseDto<String>> sendMessage(
             @PathVariable Integer conversationId,
             @RequestHeader("Authorization") String authorizationHeader,
             @RequestBody SendMessageRequestDto dto) {
