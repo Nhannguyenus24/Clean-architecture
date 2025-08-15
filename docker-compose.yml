@@ -1,18 +1,19 @@
 version: '3.8'
 
 services:
-  # PostgreSQL Database
-  postgres:
-    image: postgres:15
-    container_name: chatbot_postgres
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: chatbot_mysql
     environment:
-      POSTGRES_DB: chatbot
-      POSTGRES_USER: chatbot_user
-      POSTGRES_PASSWORD: chatbot_pass
+      MYSQL_DATABASE: chatbot
+      MYSQL_USER: chatbot_user
+      MYSQL_PASSWORD: chatbot_pass
+      MYSQL_ROOT_PASSWORD: root_password
     ports:
-      - "5432:5432"
+      - "3306:3306"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mysql_data:/var/lib/mysql
     networks:
       - chatbot-network
 
@@ -33,13 +34,13 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/chatbot
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/chatbot?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=chatbot_user
       - SPRING_DATASOURCE_PASSWORD=chatbot_pass
       - GOOGLE_API_KEY=
     depends_on:
       - redis
-      - postgres
+      - mysql
     networks:
       - chatbot-network
 
@@ -57,7 +58,7 @@ services:
       - chatbot-network
 
 volumes:
-  postgres_data:
+  mysql_data:
 
 networks:
   chatbot-network:
